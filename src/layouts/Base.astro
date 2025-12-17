@@ -1,0 +1,34 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import { ViewTransitions } from 'astro:transitions';
+import '../styles/global.css';
+
+type Props = {
+	title: string;
+	description: string;
+	mainClass?: string;
+};
+
+const {
+	title,
+	description,
+	mainClass = ''
+} = Astro.props as Props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body class='flex flex-col'>
+		<ViewTransitions />
+		<div class='mx-auto w-full max-w-3xl border border-(--primary) my-6 px-8 py-4'>
+			<Header />
+			<main class:list={['grow', mainClass]}>
+				<slot />
+			</main>
+		</div>
+	</body>
+</html>
