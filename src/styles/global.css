@@ -6,22 +6,123 @@
 @import "tailwindcss";
 @source "../**/*.{astro,html,md,mdx,js,ts,jsx,tsx}";
 :root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--primary: #AA1717;
+	--background: #455969;
+	--primary: #C5949A;
+	--secondary: #5E5648;
+	--primary-acc: #DE98A0;
+	--secondary-acc: #7A7D4F;
+	--ink: #C5949A;
+	--updates-bg: color-mix(in srgb, var(--primary) 10%, var(--background) 90%);
+	--ink-muted: color-mix(in srgb, var(--secondary) 60%, var(--background));
+	--accent: var(--primary);
+	--accent-muted: color-mix(in srgb, var(--primary) 65%, var(--background));
+	--border: color-mix(in srgb, var(--primary) 50%, var(--background));
+	--rule: color-mix(in srgb, var(--primary) 55%, var(--background));
+	--surface: color-mix(in srgb, var(--background) 92%, var(--primary-acc));
+	--surface-strong: color-mix(in srgb, var(--background) 86%, var(--primary));
+	--link: var(--primary);
+	--link-hover: var(--primary-acc);
+	--tag-bg: color-mix(in srgb, var(--secondary-acc) 40%, var(--background));
+	--tag-text: var(--primary-acc);
 	--font-body: "Spectral", serif;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
-	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%), 0 16px 32px
-		rgba(var(--gray), 33%);
 }
 
 @theme {
 	--font-body: "Spectral", serif;
+}
+
+body {
+	background: var(--background);
+	color: var(--ink);
+}
+
+.grainy-bg {
+	background: var(--background);
+	position: relative;
+}
+
+.grainy-bg::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="180" height="180"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3CfeColorMatrix type="matrix" values="2 0 0 0 -0.5 0 2 0 0 -0.5 0 0 2 0 -0.5 0 0 0 1 0"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+	opacity: 0.55;
+	filter: contrast(1.8);
+	pointer-events: none;
+	mix-blend-mode: multiply;
+	z-index: 0;
+}
+
+.grainy-bg > * {
+	position: relative;
+	z-index: 1;
+}
+
+.grainy-panel {
+	background: var(--background);
+	position: relative;
+	isolation: isolate;
+}
+
+.grainy-panel::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="180" height="180"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3CfeColorMatrix type="matrix" values="2 0 0 0 -0.5 0 2 0 0 -0.5 0 0 2 0 -0.5 0 0 0 1 0"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+	opacity: 0.55;
+	filter: contrast(1.8);
+	pointer-events: none;
+	mix-blend-mode: multiply;
+	z-index: 0;
+}
+
+.grainy-panel > * {
+	position: relative;
+	z-index: 1;
+}
+
+.grainy-sticky {
+	background: var(--background);
+	position: sticky;
+	isolation: isolate;
+}
+
+.grainy-sticky::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="180" height="180"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3CfeColorMatrix type="matrix" values="2 0 0 0 -0.5 0 2 0 0 -0.5 0 0 2 0 -0.5 0 0 0 1 0"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+	opacity: 0.55;
+	filter: contrast(1.8);
+	pointer-events: none;
+	mix-blend-mode: multiply;
+	z-index: 0;
+}
+
+.grainy-sticky > * {
+	position: relative;
+	z-index: 1;
+}
+
+.tag {
+	background: var(--tag-bg);
+	color: var(--tag-text);
+	padding: 0.125rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+a {
+	color: var(--link);
+}
+
+a:hover {
+	color: var(--link-hover);
+}
+
+hr {
+	border-color: var(--border);
 }
 
 @font-face {
@@ -121,4 +222,12 @@
 	font-weight: 800;
 	font-style: italic;
 	font-display: swap;
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 }

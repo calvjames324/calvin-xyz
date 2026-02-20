@@ -1,0 +1,47 @@
+---
+  import { getEntry } from 'astro:content';
+  import FormattedDate from'../components/FormattedDate.astro';
+
+  const entry = await
+    getEntry('life', 'updates');
+    const updates = (entry?.data.updates ?? []).slice()
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+---
+
+  <div class="overflow-y-auto no-scrollbar px-6 max-[479px]:px-2 pb-4 w-full h-full">
+    <section class="relative min-h-full [--rail-x:3rem] max-[479px]:[--rail-x:1.75rem]">
+
+        <!-- Vertical Rail -->
+        <div class="absolute left-(--rail-x) top-10 bottom-4 w-px bg-(--ink)/60"></div>
+
+        <!-- Sticky Title (Flush at top) -->
+        <div class="grainy-sticky sticky top-0 z-20 pt-3 pb-1">
+            <h1 class="font-body text-(--ink)/80 text-[1.05rem]">
+                [ UPDATES ]
+            </h1>
+        </div>
+
+        <!-- Entries Container -->
+        <div class="mt-6 space-y-6 max-[479px]:space-y-5 relative z-10">
+            {updates.map((u) => (
+            <div class="relative pl-[calc(var(--rail-x)+2rem)] max-[479px]:pl-[calc(var(--rail-x)+1rem)]">
+
+                <!-- Horizontal connector from rail to card -->
+                <div class="absolute left-(--rail-x) top-6 h-px w-8 max-[479px]:w-4
+                            bg-(--rule)"></div>
+
+                <article class="px-4 py-3 border border-(--ink)/60">
+
+                    <p class="whitespace-pre-wrap text-[0.9rem] text-(--ink)/80">{u.text}</p>
+
+                    <div class="mt-3 text-right text-xs
+                                text-(--ink)/80">
+                        <FormattedDate date={u.date} />
+                    </div>
+
+                </article>
+            </div>
+            ))}
+        </div>
+    </section>
+  </div>

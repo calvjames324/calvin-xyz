@@ -13,7 +13,19 @@ const blog = defineCollection({
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: image().optional(),
+			tags: z.array(z.string()).optional(),
 		}),
 });
+const life = defineCollection({
+    loader: glob({ base: './src/content/life', pattern:'updates.md' }),
+    schema: z.object({
+      updates: z.array(
+        z.object({
+          date: z.coerce.date(),
+          text: z.string(),
+        })
+      ),
+    }),
+  });
 
-export const collections = { blog };
+export const collections = { blog, life };

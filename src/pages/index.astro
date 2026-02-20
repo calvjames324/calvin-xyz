@@ -1,37 +1,28 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import '../styles/global.css';
+import LifeUpdates from '../layouts/LifeUpdates.astro'
 ---
 
 <Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<h1>🧑‍🚀 Hello, Astronaut!</h1>
-	<p>
-		Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-		serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-		website, blog, or portfolio with Astro.
-	</p>
-	<p>
-		This template comes with a few integrations already configured in your
-		<code>astro.config.mjs</code> file. You can customize your setup with
-		<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-		React, or Vue to your project.
-	</p>
-	<p>Here are a few ideas on how to get started with the template:</p>
-	<ul>
-		<li>Edit this page in <code>src/pages/index.astro</code></li>
-		<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-		<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-		<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-		<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-	</ul>
-	<p>
-		Have fun! If you get stuck, remember to
-		<a href="https://docs.astro.build/">read the docs</a>
-		or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-	</p>
-	<p>
-		Looking for a blog template with a bit more personality? Check out
-		<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-		by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-	</p>
+    <div class="mt-8">
+        <div class=''>
+            <p class='font-body
+                      text-(--ink)/90
+                      font-light
+                      text-center
+                      italic
+                      text-[1.2rem]'>
+                 - "It is not what we know that makes who we are,
+                 it is our conviction."
+            </p>
+        </div>
+        <div class='mx-6 max-[479px]:mx-1 mt-8 h-70 flex'>
+            <LifeUpdates/>
+        </div>
+        <div class='text-[1.2rem] font-body mt-8 text-justify text-(--ink)/90 font-light'>
+            This is an attempt at tending an ever growing digital garden. The alleged gardener is 22 (edging 23, god help him) and a math major(sounds fancy, hence the need to mention it) who has been unemployed (on paper) since graduation. Now you, my good visitor may wonder, does our humble gardener amass a fortune to have the comfort of tending a garden while not being employed on paper? God no, infact, it seems to be the complete opposite. Our dear gardener barely survives by working as a freelance software dev on most days, and by tutoring a Canadian college kid math on the weekends. While both of these don't feel like a job in anyway, they still pose as an active source of income. One of the main purposes of the garden is to tend the growing saplings of the few interests fancied by the garden keeper, some of them being Pure Math, Programming, ML research and Physics. This would be done by writing about the respective topics with the intent of captivating the reader while not shying from trying to comprehend the specifics that make up the topic. You may have wondered, dear visitor, what the reviews section is supposed to be. As it turns out, the gardener is part hippie and has hippie interests like movies and music. These reviews aren't meant to be critical, they are hippie thoughts expressed by the hippie gardener in his hippie side of the garden.
+        </div>
+    </div>
 </Base>
