@@ -3,6 +3,8 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig } from 'astro/config';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -11,7 +13,13 @@ export default defineConfig({
   site: 'https://example.com',
   // @ts-expect-error Typings may not yet include viewTransitions in this version
   viewTransitions: true,
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
+    sitemap(),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

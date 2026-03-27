@@ -5,25 +5,20 @@ const posts = await getCollection('blog');
 const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<ul class="space-y-4">
+<ol class="list-decimal space-y-2 pl-6 marker:text-(--ink-muted)">
     {sortedPosts.map((post) => (
-        <li class="flex flex-wrap items-baseline gap-2">
-            <a href={`/blog/${post.id}`} class="blog-title">
-                {post.data.title}
-            </a>
-            {post.data.tags && post.data.tags.map((tag) => (
-                <span class="tag">{tag}</span>
-            ))}
+        <li>
+            <div class="flex flex-wrap items-baseline gap-2">
+                <a
+                    href={`/blog/${post.id}`}
+                    class="text-[1.1rem] underline underline-offset-5"
+                >
+                    {post.data.title}
+                </a>
+                {post.data.tags && post.data.tags.map((tag) => (
+                    <span class="tag">{tag}</span>
+                ))}
+            </div>
         </li>
     ))}
-</ul>
-
-<style>
-    .blog-title {
-        text-decoration: underline;
-        text-underline-offset: 4px;
-    }
-    .blog-title:hover {
-        text-decoration-thickness: 2px;
-    }
-</style>
+</ol>

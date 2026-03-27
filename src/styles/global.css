@@ -3,15 +3,16 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+@import "katex/dist/katex.min.css";
 @import "tailwindcss";
 @source "../**/*.{astro,html,md,mdx,js,ts,jsx,tsx}";
 :root {
-	--background: #455969;
-	--primary: #C5949A;
-	--secondary: #5E5648;
-	--primary-acc: #DE98A0;
-	--secondary-acc: #7A7D4F;
-	--ink: #C5949A;
+	--background: #ffffff;
+	--primary: #8B0000;
+	--secondary: #8B0000;
+	--primary-acc: #8B0000;
+	--secondary-acc: #8B0000;
+	--ink: #8B0000;
 	--updates-bg: color-mix(in srgb, var(--primary) 10%, var(--background) 90%);
 	--ink-muted: color-mix(in srgb, var(--secondary) 60%, var(--background));
 	--accent: var(--primary);
