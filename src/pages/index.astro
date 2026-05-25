@@ -9,12 +9,12 @@ import HomeBlogIndex from '../components/HomeBlogIndex.astro'
 <Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
     <div class="mt-8">
         <div class='mt-2 mb-12 flex flex-col items-center gap-6'>
-            <div class='flex items-center justify-center gap-8'>
-                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert" />
-                <img src="/meditate.svg" alt="Meditation illustration" class="w-32 h-32 shrink-0 opacity-90 invert" />
-                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert scale-x-[-1]" />
+            <div class='flex items-center justify-center gap-8 max-[450px]:gap-5'>
+                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert max-[450px]:w-16" />
+                <img src="/meditate.svg" alt="Meditation illustration" class="w-32 h-32 shrink-0 opacity-90 invert max-[450px]:w-24 max-[450px]:h-24" />
+                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert scale-x-[-1] max-[450px]:w-16" />
             </div>
-            <div class='text-[1.2rem] font-body text-(--ink)/90 font-extralight max-w-2xl'>
+            <div class='text-[1.35rem] font-body italic text-center text-(--ink)/90 font-extralight max-w-2xl'>
             The reason I still like Math is because I never learnt it from school.
             </div>
         </div>
