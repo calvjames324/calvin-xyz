@@ -2,16 +2,20 @@
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
-const sortedPosts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const sortedPosts = posts.sort((a, b) => {
+    if (a.id === 'mcts/mcts') return -1;
+    if (b.id === 'mcts/mcts') return 1;
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
 ---
 
-<ol class="list-decimal space-y-2 pl-6 marker:text-(--ink-muted)">
+<ol class="list-decimal space-y-5 pl-6 marker:text-(--ink-muted)">
     {sortedPosts.map((post) => (
         <li>
-            <div class="flex flex-wrap items-baseline gap-2">
+            <div class="flex flex-wrap items-baseline gap-3">
                 <a
                     href={`/blog/${post.id}`}
-                    class="text-[1.1rem] underline underline-offset-5"
+                    class="text-[1.1rem] underline underline-offset-5 leading-relaxed"
                 >
                     {post.data.title}
                 </a>

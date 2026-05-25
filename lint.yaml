@@ -1,0 +1,7 @@
+paths:
+  markdown_root: src/content
+  build_root: dist
+
+links:
+  site_hosts:
+    - example.com

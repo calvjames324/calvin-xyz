@@ -7,12 +7,12 @@
 @import "tailwindcss";
 @source "../**/*.{astro,html,md,mdx,js,ts,jsx,tsx}";
 :root {
-	--background: #ffffff;
-	--primary: #8B0000;
-	--secondary: #8B0000;
-	--primary-acc: #8B0000;
-	--secondary-acc: #8B0000;
-	--ink: #8B0000;
+	--background: #000000;
+	--primary: #f5f1e8;
+	--secondary: #f5f1e8;
+	--primary-acc: #f5f1e8;
+	--secondary-acc: #f5f1e8;
+	--ink: #f5f1e8;
 	--updates-bg: color-mix(in srgb, var(--primary) 10%, var(--background) 90%);
 	--ink-muted: color-mix(in srgb, var(--secondary) 60%, var(--background));
 	--accent: var(--primary);
@@ -47,10 +47,10 @@ body {
 	position: fixed;
 	inset: 0;
 	background-image: url("/noise.svg");
-	opacity: 0.55;
-	filter: contrast(1.8);
+	opacity: 0.3;
+	filter: brightness(1.7) contrast(2.1);
 	pointer-events: none;
-	mix-blend-mode: multiply;
+	mix-blend-mode: screen;
 	z-index: 0;
 }
 
@@ -70,10 +70,10 @@ body {
 	position: absolute;
 	inset: 0;
 	background-image: url("/noise.svg");
-	opacity: 0.55;
-	filter: contrast(1.8);
+	opacity: 0.3;
+	filter: brightness(1.7) contrast(2.1);
 	pointer-events: none;
-	mix-blend-mode: multiply;
+	mix-blend-mode: screen;
 	z-index: 0;
 }
 
@@ -93,10 +93,10 @@ body {
 	position: absolute;
 	inset: 0;
 	background-image: url("/noise.svg");
-	opacity: 0.55;
-	filter: contrast(1.8);
+	opacity: 0.3;
+	filter: brightness(1.7) contrast(2.1);
 	pointer-events: none;
-	mix-blend-mode: multiply;
+	mix-blend-mode: screen;
 	z-index: 0;
 }
 

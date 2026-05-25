@@ -3,26 +3,26 @@ import Base from '../layouts/Base.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import '../styles/global.css';
 import LifeUpdates from '../layouts/LifeUpdates.astro'
+import HomeBlogIndex from '../components/HomeBlogIndex.astro'
 ---
 
 <Base title={SITE_TITLE} description={SITE_DESCRIPTION}>
     <div class="mt-8">
-        <div class=''>
-            <p class='font-body
-                      text-(--ink)/90
-                      font-light
-                      text-center
-                      italic
-                      text-[1.2rem]'>
-                 - "It is not what we know that makes who we are,
-                 it is our conviction."
-            </p>
+        <div class='mt-2 mb-12 flex flex-col items-center gap-6'>
+            <div class='flex items-center justify-center gap-8'>
+                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert" />
+                <img src="/meditate.svg" alt="Meditation illustration" class="w-32 h-32 shrink-0 opacity-90 invert" />
+                <img src="/flower.svg" alt="Flower illustration" class="w-24 shrink-0 opacity-90 invert scale-x-[-1]" />
+            </div>
+            <div class='text-[1.2rem] font-body text-(--ink)/90 font-extralight max-w-2xl'>
+            The reason I still like Math is because I never learnt it from school.
+            </div>
         </div>
-        <div class='mx-6 max-[479px]:mx-1 mt-8 h-70 flex'>
+        <div class='mx-6 max-[479px]:mx-1 h-70 flex'>
             <LifeUpdates/>
         </div>
-        <div class='text-[1.2rem] font-body mt-8 text-(--ink)/90 font-light'>
-            This is an attempt at tending an ever growing digital garden. The alleged gardener is 22 and a math major who has been unemployed (on paper) since graduation. Now you, my good visitor may wonder, does our humble gardener amass a fortune to have the comfort of tending a garden while not being employed on paper? God no, infact, it seems to be the complete opposite. Our dear gardener barely survives by working as a freelance software dev on most days, and by tutoring a Canadian college kid math on the weekends. While both of these don't feel like a job in anyway, they still pose as an active source of income. One of the main purposes of the garden is to tend the growing saplings of the few interests fancied by the garden keeper, some of them being Pure Math, Programming, ML research and Physics. This would be done by writing about the respective topics with the intent of captivating the reader while not shying from trying to comprehend the specifics that make up the topic. You may have wondered, dear visitor, what the reviews section is supposed to be. As it turns out, the gardener is part hippie and has hippie interests like movies and music. These reviews aren't meant to be critical, they are hippie thoughts expressed by the hippie gardener in his hippie side of the garden.
+        <div class='mx-6 max-[479px]:mx-1'>
+            <HomeBlogIndex />
         </div>
     </div>
 </Base>

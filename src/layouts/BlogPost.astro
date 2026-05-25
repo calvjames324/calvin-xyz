@@ -9,7 +9,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 ---
 
 <Base title={title} description={description} mainClass="px-0 py-8 sm:px-4">
-	<article class="mx-auto max-w-none sm:max-w-3xl">
+	<article class="mx-auto max-w-none font-body sm:max-w-3xl">
 		<!-- Hero image -->
 		{heroImage && (
 			<div class="w-full mb-8 flex justify-center">
@@ -24,7 +24,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		)}
 
 		<!-- Content -->
-		<div class="prose prose-lg mx-0 sm:mx-auto">
+		<div class="prose prose-lg prose-invert mx-0 text-(--ink) sm:mx-auto">
 			<!-- Title + dates -->
 			<div class="prose prose-lg mt-2 mb-8 text-left sm:text-center">
 				<div class="text-sm prose prose-lg mx-0 mb-2 text-(--primary) text-left sm:mx-auto sm:text-center">
@@ -35,12 +35,12 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						</div>
 					)}
 				</div>
-				<h1 class="text-2xl font-bold text-left sm:text-center sm:text-3xl">{title}</h1>
+				<h1 class="text-2xl font-bold font-body text-left sm:text-center sm:text-3xl">{title}</h1>
 				<hr class="my-4" />
 			</div>
 
 			<!-- Page content -->
-			<div class="[&_p+p]:mt-6 [&_a]:underline [&_a]:underline-offset-4 text-[1.1rem] [&_a:hover]:decoration-2">
+			<div class="[&_p+p]:mt-6 [&_ol]:my-6 [&_ol]:list-decimal [&_ol]:pl-8 [&_ol>li]:pl-2 [&_ol>li]:marker:text-(--ink) [&_ol>li+li]:mt-5 [&_ul]:my-6 [&_ul]:list-disc [&_ul]:pl-8 [&_ul>li+li]:mt-3 [&_a]:underline [&_a]:underline-offset-4 text-[1.2rem] leading-8 text-(--ink) [&_a:hover]:decoration-2">
 				<slot />
 			</div>
 		</div>
