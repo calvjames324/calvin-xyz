@@ -5,9 +5,9 @@ pubDate: 'Dec 01 2025'
 heroImage: ''
 ---
 
-import BlogFigure from '../../../components/BlogFigure.astro';
-import mctsStepExpansion from './MCTS1.png';
-import mctsRootExpansion from './MCTS2.png';
+import BlogFigure from '../../components/blog/BlogFigure.astro';
+import mctsStepExpansion from './MCTS/MCTS1.png';
+import mctsRootExpansion from './MCTS/MCTS2.png';
 
 Go was considered a big challenge to be conquered by AI. The game has more than 10 to the power of 170 possible board configurations - more than the number of atoms in the known universe. AlphaGo was a breakthrough demonstration that AI systems can solve the most challenging problems. Most of the training was done entirely by the model playing out millions of games to learn and predict how good/bad a given position is and the winning possibilities given the position with two separate networks respectively. This was then combined with a powerful sampling algorithm that provided a shell for move evaluation by branching out and exploring the rest of the possible games moves given the hypothesis move upto a certain depth. The intention of this blog is to shed light into Monte Carlo Tree Search, that very sampling algorithm, by understanding the theoretical motivations and by looking through a practical implementation.
 
