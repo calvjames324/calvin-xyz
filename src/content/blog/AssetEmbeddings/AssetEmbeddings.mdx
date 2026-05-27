@@ -23,9 +23,7 @@ $$
 C_{i,j} = \sum_t \mathbf{1}\!\left[j \in \operatorname{topk}\!\left(s_{a_i,t}, k\right)\right]
 $$
 
-$$
-\text{where } s_{a_i,t} \text{ is the similarity vector for asset } a_i \text{ at window } t
-$$
+where $s_{a_i,t}$ is the similarity vector for asset $a_i$ at window $t$.
 
 This gives us an $N \times N$ co-occurrence matrix, where each row represents the co-occurrence counts of some asset $A$ with the rest of the $N-1$ assets. We ignore the diagonal, as that would be the co-occurrence count of the asset with itself. Now even though the Pearson correlation coefficient is symmetric for two given assets, the co-occurrence counts of any given two assets are not symmetric. Often for any asset $A$, its top $k$ slots will be dominated by its sectoral peers, even when asset $B$ might have a high Pearson coefficient. This high correlation can instead be caught by $B$, which will have $A$ in its top $k$ consistently as it is not as crowded by other assets with higher correlational strength. Or worse, both of them are dominated by other assets with higher correlational strength in their top $k$ and will hence have low occurrence counts, which might disregard a true causal relationship. This might turn out to be a problem, as we will see later.
 
