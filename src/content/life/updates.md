@@ -1,5 +1,12 @@
 ---
   updates:
+    - date: 2026-10-26
+      text: |
+        Dust removed
+
+    - date: 2026-10-18
+      text: |
+        time to remove the dust
     
     - date: 2026-5-25
       text: |
