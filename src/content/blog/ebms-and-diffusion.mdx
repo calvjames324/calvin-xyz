@@ -1,0 +1,185 @@
+---
+title: 'EBMs and Diffusion: The tradeoff between scale and structure'
+description: 'How diffusion and energy-based models trade off scalable training and compositional structure.'
+pubDate: '2026-11-19'
+socialImage: '/images/ebms-and-diffusion/contrastive-energy.webp'
+tags: ['generative modelling', 'diffusion', 'energy-based models']
+---
+
+import AnimatedBlogFigure from '../../components/blog/AnimatedBlogFigure.astro';
+
+<h2 class="mt-10 mb-4 text-2xl font-bold leading-tight sm:text-[1.7rem]">The common origins</h2>
+
+You have a big dataset of real images and want to train a network that would output real-looking images. In the high-dimensional space of pixels, only an extremely small percentage makes up the space of real images. Pixel space is extremely sparse, where the same image with different lighting could live very far apart from the original. Encoding the distribution of real images in lower dimensions and training the network to map them directly to their actual points in pixel space is a possible technique.<sup class="text-[0.65em]">1</sup> But this comes with the constraints of assuming a prior distribution like the Gaussian over the encodings of the real images, which may not be how they are actually distributed.<sup class="text-[0.65em]">2</sup> How can we make the network learn the actual distribution of real images?
+
+One can train a network to look at any image and output a “realness score”, but raw network outputs cannot allocate a fixed budget of scores across training. For the network to have normalised probabilities, we have to divide across the entire pixel space by a normalisation constant.
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+p_{\theta }(x)=\frac{e^{-E_{\theta }(x)}}{Z_{\theta }}
+$$
+
+</div>
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+Z_{\theta }=\int _{\mathcal{X}}e^{-E_{\theta }(x)}\,dx
+$$
+
+</div>
+
+Calculating $Z$ implies that we sum the network assigned values across the entire pixel space. This is completely intractable. Instead, we reframe the above expression to get a tractable form. Outlier<sup class="text-[0.65em]">3</sup> provides a brilliant breakdown of this proof and its motivations for Diffusion.
+
+Taking the logarithm of the probability density:
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+\log p_\theta(x)=-E_\theta(x)-\log Z_\theta
+$$
+
+</div>
+
+Taking the gradient with respect to the input $x$:
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+\nabla_x\log p_\theta(x)=-\nabla_x E_\theta(x)-\nabla_x\log Z_\theta
+$$
+
+</div>
+
+Since $Z_\theta$ depends on the parameters $\theta$ but not on the input $x$:
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+\nabla_x\log Z_\theta=0
+$$
+
+</div>
+
+Hence, the score is:
+
+<div class="max-w-full overflow-x-auto">
+
+$$
+s_\theta(x)=\nabla_x\log p_\theta(x)=-\nabla_x E_\theta(x)
+$$
+
+</div>
+
+This reframed expression doesn't require us to compute $Z$ at all. So, instead of directly approximating $p(x)$, we train the network to optimise for the score—$\nabla_x \log p(x)$. This reframed loss objective is known as Fisher Divergence<sup class="text-[0.65em]">4,5</sup> or popularly known as score matching, where the network learns the score—the direction in data space where the probability of finding real data is high. But we still don’t have the true target score for the network to learn. Modern generative methods bypass this target via derivatives (EBMs) or via noise (diffusion and flow matching models).
+
+- Formulating the score via derivatives: Using integration by parts, Hyvärinen reformulates the target such that the unknown true score drops out of the loss equation.<sup class="text-[0.65em]">5</sup> The reframed target requires us to compute first and second derivatives of the network’s own outputs (energies). So, the score here is the derivative of the scalar output of the network with respect to the input, i.e., the data.
+
+<div class="max-w-full overflow-x-auto text-[clamp(0.65rem,3.4vw,1em)] sm:text-inherit">
+
+$$
+J(\theta) = \mathbb{E}_{p_{\text{data}}(x)} \left[ \text{Tr}\left(\nabla_x s_\theta(x)\right) + \frac{1}{2} \|s_\theta(x)\|^2 \right]
+$$
+
+</div>
+
+(Here, the first term $\text{Tr}\left(\nabla_x s_\theta(x)\right)$ is just the second derivative of the energy with respect to the input, i.e., the curvature of the energy landscape. The second term $s_\theta(x)$ is the first derivative, i.e., the slope of the energy landscape.)
+
+- Formulating the score via noise: We corrupt the original image by adding noise to it, and since we know the noise we added, the opposite direction of that noise can become our score.<sup class="text-[0.65em]">6</sup> We train the network to learn this denoising direction. This denoising process can be approached by either learning the randomly added scaled noise at each step (Diffusion<sup class="text-[0.65em]">7,8</sup>) or learning the velocity field, where the target is a straight line between the pure noise and the real image (Flow Matching<sup class="text-[0.65em]">9</sup>).
+
+Hence, diffusion and EBMs are different forms of the same underlying concept, which is minimising scores to model the true distribution. Their varied forms bring in fundamentally different training and sampling methods, which have their own respective tradeoffs.
+
+<h2 class="mt-10 mb-4 text-2xl font-bold leading-tight sm:text-[1.7rem]">Diffusion is simply better for training</h2>
+
+As you may have noticed already, the EBM training objective formulation involves the use of second derivatives of the network with respect to the input. This involves computing traces of Hessians, which explodes as we scale the input dimensions. Computing an exact trace of a $D \times D$ Hessian matrix requires D separate backward passes, so for a $256 \times 256 \times 3$ image ($D = 196{,}608$), we would be doing nearly 200,000 backward passes for a single training step, which is not computationally feasible by a long shot. Hence, the implicit score matching objective by Hyvärinen is not approachable at all.<sup class="text-[0.65em]">5</sup>
+
+Deep Langevin MCMC<sup class="text-[0.65em]">10</sup> is the training method that is commonly used alongside EBMs. Inspired by Contrastive Divergence,<sup class="text-[0.65em]">11</sup> the real images in the data space are given low energies, while the low energies occupied by random parts without real images are lifted up. These fake low-energy crevices are discovered using gradient descent. Generating each sample involves roughly 60-100 gradient steps, and each training step requires a batch of N fake samples. The process of gradient sampling is strictly sequential and an unparallelisable bottleneck in training. Moreover, when generating fake samples in higher data dimensions, the gradient steps get trapped in low-energy regions they were initialised closest to, which leaves other spurious low-energy sinkholes undiscovered. The instability and sheer amount of computation involved in training make training EBMs at scale a nightmare.<sup class="text-[0.65em]">12</sup>
+
+<AnimatedBlogFigure
+  caption="Contrastive training reshapes the energy landscape."
+  images={[
+    { name: "contrastive-energy", width: 896, height: 411, alt: "The real-data well deepens, the model-negative well rises, and a fresh sample descends into the real-data well." },
+  ]}
+/>
+
+Denoising score matching cleverly assumes scores to be the opposite direction of the noise added to the data. Diffusion models completely abandon the idea of assigning energies to real data and try to predict the noise from the noisy data. Vincent (2011) showed that the noise prediction objective implicitly models the scores of the smoothed data distribution.<sup class="text-[0.65em]">6</sup> With the objective just being able to predict targeted scores/predict noise, the massive overhead of computing first- or second-order derivatives of EBMs does not occur in diffusion.<sup class="text-[0.65em]">8</sup>
+
+<AnimatedBlogFigure
+  caption="Gaussian noise helps with a smooth travel from an off-manifold region"
+  images={[
+    { name: "diffusion-forward", width: 492, height: 444, alt: "A cat photo turns into noise along a path on a sphere." },
+    { name: "diffusion-reverse", width: 492, height: 444, alt: "Noise resolves into a cat photo as the path enters smaller regions on the sphere." },
+  ]}
+/>
+
+Diffusion carries out the denoising objective at various noise scales. Each target step is a varying ratio between the image signal and the noise scale. The regression objective of predicting noise at varied noise scales gives very smooth estimates of scores across the data manifold. Spurious sinkholes around the off-manifold regions (far away from real data modes) are reached by high noise scales. If the real data modes are extremely small islands spread across the globe, the tides towards the islands occur not just around the shallow ocean coasts but also the deep ocean territories. This completely removes the overhead of sinkhole discovery via sampling, as the coverage across the manifold naturally occurs with the denoising objective.<sup class="text-[0.65em]">14,8</sup>
+
+
+<h2 class="mt-10 mb-4 text-2xl font-bold leading-tight sm:text-[1.7rem]">Why do we care about EBMs then?</h2>
+
+Natural images follow a power law in their frequency spectrum.<sup class="text-[0.65em]">15</sup> One can break down an image into its power-versus-frequency graph. Low-frequency components, which are broad gradients of colours across the image, dominate the power density across the image, while high-frequency components, which are textures and finer details, make up a very small part of the total power density. Gaussian noise contains all frequencies in equal measure, and increasing the intensity of Gaussian noise increases its power. Corruption of the image signal with Gaussian noise at early scales destroys high-frequency components. As the scale of the corruption increases, the Gaussian noise destroys lower frequencies until, finally, only pure Gaussian noise remains.<sup class="text-[0.65em]">16,17</sup>
+
+<AnimatedBlogFigure
+  caption="As noise rises, fine detail disappears first."
+  images={[
+    { name: "frequency-spectrum", width: 896, height: 578, alt: "On a log-log plot, the rising Gaussian noise floor overtakes high spatial frequencies first." },
+  ]}
+/>
+
+During the reverse process, at higher noise levels, the network learns to resolve the global uncertainties about the data distribution, like the general scene, and as the noise level decreases, the network uses this general scene that is already set and adds finer details to it. Prediction at different hierarchies of image details is what Dieleman calls spectral autoregression.<sup class="text-[0.65em]">16</sup> This enables direct comparison to the process of autoregression, but with softer implications between the consequent predictions. Hence, the diffusion process serves as a very strong prior for image generation and provides a strong structure for the networks to learn heirarchical scene generation of high-quality images.
+
+Spatial frequencies describe how rapidly pixels change across an image. The hierarchies in the frequencies of an image do not necessarily encode particular objects or their relationships. Consider generating a chessboard with a valid game state. Diffusion can do an excellent job of reconstructing the board’s appearance and the textures of the individual pieces but will do a poor job of satisfying a valid configuration. The mechanism puts more pressure on the earlier selection of data modes (of low frequencies) to discover valid compositions, and the rest of the generation uses the earlier selections as a soft dependency, which may compound errors. Diffusion can compositionally generalise, but it is very dependent on the data it is trained on. Valid combinations are learnt if they show up in statistically similar contexts. The mechanism does not pressure the networks to learn them as global rules if they show up in varied local contexts across the dataset and requires substantially more data to learn them.<sup class="text-[0.65em]">18</sup> The same inductive prior that helps with learning structural scene generation semantics in images does not favour the learning of valid composition of objects.
+
+Contrastive EBM training introduces a discriminative learning pressure—the network must learn to distinguish real configurations from the ones it incorrectly considers plausible.<sup class="text-[0.65em]">10,12</sup> As the model learns the generative semantics, i.e., learns how to generate real-looking objects, there might exist possible energy sinkholes that might follow the correct semantics for generation but will not follow a valid configuration of those objects. The sampler can discover these invalid configurations. This puts pressure on the network to learn relationships between objects rather than just focus on their appearance. But this network pressure depends a lot on the negative samples it encounters and does not provide a direct implicit pressure for such discovery. EBMs also possess an out-of-the-box ability to compare energies between out-of-distribution configurations. This easily translates to being able to perform downstream ranking/anomaly tasks without any extra training.<sup class="text-[0.65em]">19</sup>
+
+<AnimatedBlogFigure
+  caption="A factorised EBM combines two spatial energies"
+  images={[
+    { name: "composing-energies", width: 860, height: 474, alt: "The cabinet moves right under one energy and back under the other. The combined energies place it right of the couch and behind the table." },
+  ]}
+/>
+
+The product of probabilities in EBMs is just equivalent to the sum of their energies.<sup class="text-[0.65em]">11,20</sup> To represent a scene with multiple features, one can train multiple energy functions associated with objects, attributes or relationships. These functions can be directly combined without any special training to form a global energy landscape.<sup class="text-[0.65em]">20,21</sup> Think about learning the colour, shape and position of a cube. A network can independently learn the different energies corresponding to these attributes. This makes the network capable of generating a combination of these attributes (a red cube at the top left) it has never seen before.<sup class="text-[0.65em]">20</sup> Since the composition itself is an energy function, for a combination with a harder constraint, the network can allocate more compute to find a valid configuration satisfying individual conditions.<sup class="text-[0.65em]">22</sup> EBMs don’t necessarily have an implicit incentive to discover compositional rules, but factorised EBMs can learn rules (even in an unsupervised manner) that can independently be reused to generate unseen data.<sup class="text-[0.65em]">23</sup>
+
+<h2 class="mt-10 mb-4 text-2xl font-bold leading-tight sm:text-[1.7rem]">The Resolution</h2>
+
+The computational benefits of diffusion come from its construction of artificial targets with Gaussian noise. The structural benefits of EBMs come from their representation of data as energies. They are two different modelling decisions that are not mutually exclusive. There is no reason why an energy landscape cannot be learnt from a denoising objective. In fact, a denoising objective helps EBMs form a much smoother, more regular energy landscape. Methods like Diffusion Recovery Likelihood learn sequences of noise-conditioned energy landscapes.<sup class="text-[0.65em]">24</sup> Du et al. (2023) take the opposite approach, where the score network of a diffusion model is a scalar energy function whose gradient provides the score.<sup class="text-[0.65em]">25</sup> This makes the difference of energies between data points directly accessible during inference. Energy Matching teaches the energy network how to move towards the real data manifold (via flow matching), while contrastive supervision helps structure the valid configurations.<sup class="text-[0.65em]">26</sup>
+
+Reasoning-based tasks seem to be a more natural fit for EBMs, as the sampling involves finding a configuration that satisfies a particular set of constraints. They can represent the compatibility between a problem and a solution. Using this representation, they can traverse the energy landscape to find better solutions. There are demonstrations of energy models generalising to harder Sudoku puzzles,<sup class="text-[0.65em]">22</sup> crosswords and SAT problems.<sup class="text-[0.65em]">27</sup> Molecular generation is another task EBMs fit naturally into. The likelihood of a stable molecular configuration is directly related to low physical energies. EBMol learns an atom-additive scalar energy function to find stable configs.<sup class="text-[0.65em]">28</sup>
+
+Diffusion and flow matching models still remain the status quo of image modelling and various other modalities. While the scalability of energy models still remains a big question, certain of their modelling properties give us enough motivation to consider them. Furthermore, with initiatives like EBTs,<sup class="text-[0.65em]">29</sup> surrounding architectures are developed to better suit the modelling objectives of energy functions.
+
+<h2 class="mt-10 mb-4 text-2xl font-bold leading-tight sm:text-[1.7rem]">References</h2>
+
+1. Hinton, G. E. & Salakhutdinov, R. R. (2006). Reducing the Dimensionality of Data with Neural Networks. Science, 313(5786), 504–507.
+2. Kingma, D. P. & Welling, M. (2014). Auto-Encoding Variational Bayes. ICLR.
+3. Outlier. Video explainer on score-based modelling (supplementary resource).
+4. Lyu, S. (2009). Interpretation and Generalization of Score Matching. UAI.
+5. Hyvärinen, A. (2005). Estimation of Non-Normalized Statistical Models by Score Matching. JMLR.
+6. Vincent, P. (2011). A Connection Between Score Matching and Denoising Autoencoders. Neural Computation.
+7. Sohl-Dickstein, J. et al. (2015). Deep Unsupervised Learning using Nonequilibrium Thermodynamics. ICML.
+8. Ho, J., Jain, A. & Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. NeurIPS.
+9. Lipman, Y. et al. (2023). Flow Matching for Generative Modeling. ICLR.
+10. Du, Y. & Mordatch, I. (2019). Implicit Generation and Generalization in Energy-Based Models. NeurIPS.
+11. Hinton, G. E. (2002). Training Products of Experts by Minimizing Contrastive Divergence. Neural Computation.
+12. Du, Y. et al. (2021). Improved Contrastive Divergence Training of Energy-Based Models. ICML.
+13. Gladstone, A. GIF reference (supplementary visual resource).
+14. Song, Y. & Ermon, S. (2019). Generative Modeling by Estimating Gradients of the Data Distribution. NeurIPS.
+15. Field, D. J. (1987). Relations Between the Statistics of Natural Images and the Response Properties of Cortical Cells. JOSA A.
+16. Dieleman, S. (2024). Diffusion is Spectral Autoregression. Technical blog.
+17. Falck, F. et al. (2025). A Fourier Space Perspective on Diffusion Models.
+18. Favero, A. et al. (2025). How Compositional Generalization and Creativity Improve as Diffusion Models are Trained. ICML.
+19. Grathwohl, W. et al. (2020). Your Classifier is Secretly an Energy Based Model and You Should Treat it Like One. ICLR.
+20. Du, Y., Li, S. & Mordatch, I. (2020). Compositional Visual Generation with Energy Based Models. NeurIPS.
+21. Liu, N. et al. (2021). Learning to Compose Visual Relations. NeurIPS.
+22. Du, Y., Mao, J. & Tenenbaum, J. B. (2024). Learning Iterative Reasoning through Energy Diffusion. ICML.
+23. Du, Y. et al. (2021). Unsupervised Learning of Compositional Energy Concepts. NeurIPS.
+24. Gao, R. et al. (2021). Learning Energy-Based Models by Diffusion Recovery Likelihood. ICLR.
+25. Du, Y. et al. (2023). Reduce, Reuse, Recycle: Compositional Generation with Energy-Based Diffusion Models and MCMC. ICML.
+26. Balcerak, M. et al. (2025). Energy Matching: Unifying Flow Matching and Energy-Based Models for Generative Modeling. NeurIPS.
+27. Oarga, A. & Du, Y. (2025). Generalizable Reasoning through Compositional Energy Minimization. NeurIPS.
+28. Griesbacher, C. et al. (2026). Generating Physically Consistent Molecules with Energy-Based Models.
+29. Gladstone, A. et al. (2026). Energy-Based Transformers are Scalable Learners and Thinkers. ICLR.
+
+<p class="mt-6 text-sm italic text-(--primary)/70">Photographs from the scikit-image sample collection. Chelsea by Stéfan van der Walt and Eileen Collins by NASA.</p>

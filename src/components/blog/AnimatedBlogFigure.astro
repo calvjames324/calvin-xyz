@@ -1,0 +1,143 @@
+---
+import BlogFigure from './BlogFigure.astro';
+
+interface Props {
+	caption: string;
+	images: { name: string; width: number; height: number; alt: string }[];
+}
+
+const { caption, images } = Astro.props;
+const assetRoot = '/images/ebms-and-diffusion';
+---
+
+<BlogFigure caption={caption}>
+	<blog-gif-player class:list={[
+		'mx-auto block w-[94%] max-w-[37rem]',
+		images.length > 1 && 'grid grid-cols-1 gap-3 sm:grid-cols-2',
+	]}>
+		{images.map(({ name, width, height, alt }) => (
+			<img
+				src={`${assetRoot}/${name}.webp`}
+				data-animation-src={`${assetRoot}/${name}.gif`}
+				{width}
+				{height}
+				{alt}
+				class="block h-auto w-full rounded-lg shadow-md"
+			/>
+		))}
+	</blog-gif-player>
+</BlogFigure>
+
+<script>
+	const threshold = 0.15;
+
+	class BlogGifPlayer extends HTMLElement {
+		private cleanup?: () => void;
+
+		connectedCallback() {
+			const lifecycle = new AbortController();
+			const { signal } = lifecycle;
+			const motion = matchMedia('(prefers-reduced-motion: reduce)');
+			let printing = false;
+			const images = new Map(
+				[...this.querySelectorAll<HTMLImageElement>('img[data-animation-src]')].map((image) => [
+					image,
+					{
+						poster: image.src,
+						animation: image.dataset.animationSrc!,
+						visible: false,
+						hovered: false,
+						wanted: false,
+						revision: 0,
+						url: undefined as string | undefined,
+						blob: undefined as Promise<Blob> | undefined,
+					},
+				]),
+			);
+
+			function update(image: HTMLImageElement, restart = false) {
+				const state = images.get(image)!;
+				const wanted = !printing && !motion.matches && (state.visible || state.hovered);
+				if (wanted === state.wanted && !(wanted && restart)) return;
+
+				state.wanted = wanted;
+				const revision = ++state.revision;
+				if (!wanted) {
+					image.src = state.poster;
+					if (state.url) URL.revokeObjectURL(state.url);
+					state.url = undefined;
+					return;
+				}
+
+				state.blob ??= fetch(state.animation, { signal }).then((response) => {
+					if (!response.ok) throw new Error('Unable to load the blog animation');
+					return response.blob();
+				});
+				void state.blob.then((blob) => {
+					if (signal.aborted || revision !== state.revision) return;
+					const previous = state.url;
+					state.url = URL.createObjectURL(blob);
+					image.src = state.url;
+					if (previous) URL.revokeObjectURL(previous);
+				}).catch(() => {
+					if (revision !== state.revision) return;
+					state.blob = undefined;
+					state.wanted = false;
+				});
+			}
+
+			const observer = new IntersectionObserver((entries) => {
+				for (const { target, intersectionRatio } of entries) {
+					const image = target as HTMLImageElement;
+					images.get(image)!.visible = intersectionRatio >= threshold;
+					update(image);
+				}
+			}, { threshold });
+
+			for (const [image, state] of images) {
+				observer.observe(image);
+				image.addEventListener('pointerenter', (event) => {
+					if (event.pointerType === 'touch') return;
+					state.hovered = true;
+					update(image, true);
+				}, { signal });
+				image.addEventListener('pointerleave', () => {
+					state.hovered = false;
+					update(image);
+				}, { signal });
+			}
+
+			function refresh() {
+				for (const image of images.keys()) update(image);
+			}
+
+			motion.addEventListener('change', refresh, { signal });
+			addEventListener('beforeprint', () => {
+				printing = true;
+				refresh();
+			}, { signal });
+			addEventListener('afterprint', () => {
+				printing = false;
+				refresh();
+			}, { signal });
+
+			this.cleanup = () => {
+				observer.disconnect();
+				lifecycle.abort();
+				for (const [image, state] of images) {
+					image.src = state.poster;
+					if (state.url) URL.revokeObjectURL(state.url);
+				}
+			};
+		}
+
+		disconnectedCallback() {
+			this.cleanup?.();
+			this.cleanup = undefined;
+		}
+	}
+
+	if (!customElements.get('blog-gif-player')) {
+		customElements.define('blog-gif-player', BlogGifPlayer);
+	}
+</script>

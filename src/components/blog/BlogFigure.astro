@@ -1,9 +1,13 @@
 ---
 import { Image } from 'astro:assets';
 
-interface Props {
+type Props = ({
 	src: ImageMetadata | string;
 	alt: string;
+} | {
+	src?: never;
+	alt?: never;
+}) & {
 	caption?: string;
 	width?: number;
 	height?: number;
@@ -19,13 +23,15 @@ const {
 ---
 
 <figure class="my-10">
-	<Image
-		src={src}
-		alt={alt}
-		width={width}
-		height={height}
-		class="w-full rounded-lg shadow-md"
-	/>
+	<slot>
+		{src !== undefined && <Image
+			src={src}
+			alt={alt}
+			width={width}
+			height={height}
+			class="w-full rounded-lg shadow-md"
+		/>}
+	</slot>
 	{caption && (
 		<figcaption class="mt-3 text-center text-sm italic text-(--primary)/70">
 			{caption}
