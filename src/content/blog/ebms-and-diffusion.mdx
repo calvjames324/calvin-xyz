@@ -134,9 +134,9 @@ Spatial frequencies describe how rapidly pixels change across an image. The hier
 Contrastive EBM training introduces a discriminative learning pressure—the network must learn to distinguish real configurations from the ones it incorrectly considers plausible.<sup class="text-[0.65em]">10,12</sup> As the model learns the generative semantics, i.e., learns how to generate real-looking objects, there might exist possible energy sinkholes that might follow the correct semantics for generation but will not follow a valid configuration of those objects. The sampler can discover these invalid configurations. This puts pressure on the network to learn relationships between objects rather than just focus on their appearance. But this network pressure depends a lot on the negative samples it encounters and does not provide a direct implicit pressure for such discovery. EBMs also possess an out-of-the-box ability to compare energies between out-of-distribution configurations. This easily translates to being able to perform downstream ranking/anomaly tasks without any extra training.<sup class="text-[0.65em]">19</sup>
 
 <AnimatedBlogFigure
-  caption="A factorised EBM combines two spatial energies"
+  caption="A factorised EBM combines colour and shape energies"
   images={[
-    { name: "composing-energies", width: 860, height: 474, alt: "The cabinet moves right under one energy and back under the other. The combined energies place it right of the couch and behind the table." },
+    { name: "composing-energies", width: 896, height: 562, alt: "The red colour well deepens first, then the square shape well. Their sum is lowest at the red-square intersection." },
   ]}
 />
 
