@@ -1,9 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const pinned = ['algorithmic-equivalence-space', 'asset-embeddings'];
+const posts = (await getCollection('blog')).sort((a, b) => {
+	const aRank = pinned.includes(a.id) ? pinned.indexOf(a.id) : pinned.length;
+	const bRank = pinned.includes(b.id) ? pinned.indexOf(b.id) : pinned.length;
+	return aRank - bRank || b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
 ---
 
 <section class="mt-10 pb-4 space-y-8 max-w-full font-body">
