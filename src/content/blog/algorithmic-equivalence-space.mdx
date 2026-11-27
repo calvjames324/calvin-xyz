@@ -1,11 +1,24 @@
 ---
 title: 'Algorithmic Equivalence Space'
 description: 'Looking for implementation invariant structures of code in intermediary model activations.'
+socialImage: '/images/algorithmic-equivalence/algorithm-equivalence.png'
 pubDate: '2026-10-18'
 tags: ['mechanistic interpretability', 'representation learning', 'code models']
 ---
 
 import BlogFigure from '../../components/blog/BlogFigure.astro';
+import AnimatedBlogFigure from '../../components/blog/AnimatedBlogFigure.astro';
+
+<AnimatedBlogFigure
+  assetRoot="/images/algorithmic-equivalence"
+  fullWidth
+  images={[{
+    name: 'algorithm-equivalence',
+    width: 1600,
+    height: 860,
+    alt: 'Conceptual animation: Rust and C++ implementations overlap for Algorithm 1; Python and C implementations overlap for Algorithm 2 in an intermediate representation space.',
+  }]}
+/>
 
 For the last 2–3 years, frontier labs have been heavily focused on ramping up the programming abilities of LLMs because of their deterministic and verifiable nature. Hence, a sizeable part of the training corpus involves code distributed almost evenly across a number of popular programming languages. Naturally, it can be assumed that the models form certain coding abstractions that help them write code to solve a particular task. One form of such an abstraction can appear when models, in their intermediary layers, compress diverse implementations into a language-invariant, computational representation that is sensitive to algorithmic structure rather than surface form. However, measuring this trivially via a few code snippets across different algorithms is difficult, as they carry syntactic baggage (language tokens, variable identifiers, formatting) that confounds raw similarity and might misrepresent the representational space we are looking for. In this study, we mechanistically investigate evidence of this shared algorithmic space across models, how it evolves across layers, and how much of it is linearly decodable.
 
@@ -41,3 +54,5 @@ These experiments provide preliminary correlational evidence for the existence o
 2. The sample set we curated contains only 100 tasks. A lack of diversity in tasks results in poor estimation of population variance, which directly affects metrics like CKA and RSA that average over the number of tasks (or algorithm groups). Even though the held-out test set performed well, the probes were trained on all tasks (only one language was held out, but all 100 tasks were used). The probe can pick up naive statistical correlations across the training tasks that are common among the three languages we trained on, which could transfer trivially to another language as well. Increasing the total sample size and the test size by adding more tasks and more languages per algorithm should give a more conclusive result.
 
 As models continue to be optimized for coding tasks, hypotheses similar to our experiment can provide a strong understanding of how these models compute internally. Beyond an algorithmic equivalence space, we can explore how solutions to the same tasks (algorithms) of different complexities relate to each other, and whether tasks share similar complexity curves that we could identify and steer.
+
+You can find the code [here](https://github.com/calvjames324/algorithmic-space).

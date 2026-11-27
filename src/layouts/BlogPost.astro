@@ -5,10 +5,10 @@ import Base from './Base.astro';
 import FormattedDate from '../components/blog/FormattedDate.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, socialImage } = Astro.props;
 ---
 
-<Base title={title} description={description} mainClass="px-0 py-8 sm:px-4">
+<Base title={title} description={description} image={socialImage ?? heroImage} mainClass="px-0 py-8 sm:px-4">
 	<article class="mx-auto max-w-none font-body sm:max-w-3xl">
 		<!-- Hero image -->
 		{heroImage && (

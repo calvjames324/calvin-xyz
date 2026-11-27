@@ -2,17 +2,18 @@
 import BlogFigure from './BlogFigure.astro';
 
 interface Props {
-	caption: string;
+	caption?: string;
+	assetRoot?: string;
+	fullWidth?: boolean;
 	images: { name: string; width: number; height: number; alt: string }[];
 }
 
-const { caption, images } = Astro.props;
-const assetRoot = '/images/ebms-and-diffusion';
+const { caption, images, assetRoot = '/images/ebms-and-diffusion', fullWidth = false } = Astro.props;
 ---
 
 <BlogFigure caption={caption}>
 	<blog-gif-player class:list={[
-		'mx-auto block w-[94%] max-w-[37rem]',
+		fullWidth ? 'mx-auto block w-full' : 'mx-auto block w-[94%] max-w-[37rem]',
 		images.length > 1 && 'grid grid-cols-1 gap-3 sm:grid-cols-2',
 	]}>
 		{images.map(({ name, width, height, alt }) => (

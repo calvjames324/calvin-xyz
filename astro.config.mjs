@@ -10,7 +10,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://calvinjames.xyz',
   // @ts-expect-error Typings may not yet include viewTransitions in this version
   viewTransitions: true,
   integrations: [
